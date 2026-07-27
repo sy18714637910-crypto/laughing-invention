@@ -1,0 +1,11 @@
+﻿{
+  "name": "习惯打卡",
+  "short_name": "习惯打卡",
+  "description": "用电影名言激励你每天进步 — 布达佩斯大饭店美学",
+  "start_url": "/打卡.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF6F2",
+  "theme_color": "#F8C8D0",
+  "icons": []
+}
