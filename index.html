@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#F8C8D0">
+<title>习惯打卡</title>
+<style>
+﻿/* ========== 布达佩斯大饭店 · 复古美学 ========== */
+:root {
+  --rose: #F8C8D0;
+  --rose-deep: #E8A0B0;
+  --sage: #94C5B4;
+  --sage-dark: #7AB5A0;
+  --cream: #FAF6F2;
+  --gold: #D4B483;
+  --gold-light: #E8D5B8;
+  --text: #3A3A3A;
+  --text-secondary: #888888;
+  --card-bg: #FFFFFF;
+  --card-shadow: 0 2px 20px rgba(180, 150, 130, 0.10);
+  --radius: 22px;
+  --radius-sm: 14px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "Georgia", "Noto Serif SC", "STSong", "Songti SC", "SimSun", "PingFang SC", serif;
+  background: var(--cream);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  max-width: 420px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ===== 顶部装饰线 ===== */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 420px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--rose), var(--gold), var(--sage));
+  z-index: 200;
+}
+
+/* ===== 头部 ===== */
+.app-header {
+  position: sticky;
+  top: 3px;
+  background: var(--cream);
+  padding: 20px 24px 14px;
+  z-index: 10;
+  text-align: center;
+}
+.app-header h1 {
+  font-family: "Georgia", "Noto Serif SC", serif;
+  font-size: 21px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  color: var(--text);
+}
+.app-header .date-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  letter-spacing: 1px;
+  font-style: italic;
+}
+
+/* ===== Banner 装饰区 ===== */
+.banner {
+  margin: 4px 20px 16px;
+  height: 90px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, #F8E8EC 0%, #FDE8D0 40%, #E8F0EC 100%);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.banner::before {
+  content: '';
+  position: absolute;
+  width: 100%; height: 100%;
+  background:
+    /* 简化建筑剪影 */
+    radial-gradient(ellipse 60px 30px at 80px 65px, rgba(200,160,140,0.25) 0%, transparent 70%),
+    radial-gradient(ellipse 30px 50px at 80px 40px, rgba(200,160,140,0.20) 0%, transparent 70%),
+    radial-gradient(ellipse 40px 20px at 200px 70px, rgba(180,200,180,0.25) 0%, transparent 70%),
+    radial-gradient(ellipse 25px 35px at 280px 45px, rgba(200,160,140,0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 35px 25px at 330px 65px, rgba(180,190,170,0.20) 0%, transparent 70%);
+  opacity: 0.8;
+}
+.banner-text {
+  font-family: "Georgia", serif;
+  font-size: 14px;
+  color: var(--text-secondary);
+  letter-spacing: 3px;
+  font-style: italic;
+  z-index: 1;
+  opacity: 0.6;
+}
+
+/* ===== 页面容器 ===== */
+.page {
+  padding: 0 20px 110px;
+  animation: fadeIn 0.35s ease;
+}
+.page.hidden { display: none; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== 底部导航 ===== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 420px;
+  height: 68px;
+  background: var(--card-bg);
+  display: flex;
+  border-top: 1px solid var(--gold-light);
+  z-index: 100;
+  box-shadow: 0 -2px 16px rgba(180, 150, 130, 0.08);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-family: "Georgia", "Noto Serif SC", serif;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+  gap: 4px;
+}
+.nav-item .nav-icon { font-size: 18px; }
+.nav-item.active { color: var(--rose-deep); }
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 8px;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--rose-deep);
+}
+.nav-item:active { transform: scale(0.95); }
+
+/* ===== 分类标签 ===== */
+.category-filter {
+  display: flex;
+  gap: 10px;
+  padding: 4px 0 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  justify-content: center;
+}
+.category-filter::-webkit-scrollbar { display: none; }
+.filter-tag {
+  white-space: nowrap;
+  padding: 7px 18px;
+  border-radius: 20px;
+  background: transparent;
+  border: 1px solid var(--gold-light);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: var(--text-secondary);
+  font-family: "Georgia", "Noto Serif SC", serif;
+  letter-spacing: 0.5px;
+}
+.filter-tag.active {
+  background: var(--rose);
+  color: #fff;
+  border-color: var(--rose);
+  font-style: italic;
+}
+
+/* ===== 习惯卡片 ===== */
+.habit-list { display: flex; flex-direction: column; gap: 12px; }
+.habit-card {
+  display: flex;
+  align-items: center;
+  padding: 16px 18px;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  transition: all 0.25s;
+  position: relative;
+}
+.habit-card:active { transform: scale(0.985); }
+.habit-card::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 12px; bottom: 12px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--cat-color, #D4B483);
+}
+.habit-info { flex: 1; min-width: 0; }
+.habit-name {
+  font-size: 14px;
+  font-weight: 400;
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+.habit-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 11px;
+  font-style: italic;
+}
+.habit-cat { color: var(--text-secondary); }
+.habit-streak {
+  color: var(--rose-deep);
+  font-weight: 400;
+  background: rgba(248,200,208,0.15);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.habit-reminder { font-size: 11px; }
+
+/* ===== 打卡徽章按钮 ===== */
+.check-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--gold-light);
+  background: var(--cream);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  position: relative;
+}
+.check-btn::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px dashed transparent;
+  transition: all 0.35s;
+}
+.check-btn:hover::before {
+  border-color: var(--gold);
+  animation: rotateDash 8s linear infinite;
+}
+@keyframes rotateDash {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.check-btn .check-icon { font-size: 20px; }
+.check-btn.checked {
+  background: var(--rose);
+  border-color: var(--rose-deep);
+  box-shadow: 0 4px 16px rgba(232, 160, 176, 0.3);
+}
+.check-btn:active { transform: scale(0.85); }
+
+/* ===== 今日摘要 ===== */
+.today-summary {
+  margin-top: 20px;
+  padding: 20px 24px;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  text-align: center;
+}
+.summary-item { margin-bottom: 12px; }
+.summary-num {
+  font-size: 32px;
+  font-weight: 400;
+  color: var(--rose-deep);
+  font-family: "Georgia", serif;
+  letter-spacing: 1px;
+}
+.summary-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+.progress-bar {
+  height: 4px;
+  background: var(--gold-light);
+  border-radius: 2px;
+  overflow: hidden;
+  max-width: 200px;
+  margin: 0 auto;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--rose);
+  border-radius: 2px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== 区域标题 ===== */
+.section { margin-top: 24px; }
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.section-header h3 {
+  font-size: 15px;
+  font-weight: 400;
+  font-family: "Georgia", "Noto Serif SC", serif;
+  letter-spacing: 1px;
+  color: var(--text);
+}
+.section-header h4 {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* ===== 计划卡片 ===== */
+.plan-card {
+  padding: 16px 18px;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  margin-bottom: 12px;
+}
+.plan-card.active-plan {
+  border-left: 3px solid var(--rose);
+}
+.plan-card.inactive {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.plan-name {
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+.plan-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 4px 0;
+  font-style: italic;
+}
+.plan-period { font-size: 11px; color: var(--text-secondary); }
+.plan-habits-count {
+  font-size: 11px;
+  color: var(--rose-deep);
+  margin: 6px 0;
+  font-style: italic;
+}
+.plan-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+/* ===== 习惯条目 ===== */
+.habit-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--card-bg);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  box-shadow: 0 1px 8px rgba(180, 150, 130, 0.06);
+}
+.habit-item-info { flex: 1; min-width: 0; }
+.habit-item-name { font-size: 13px; letter-spacing: 0.3px; }
+.habit-item-actions { display: flex; gap: 4px; }
+
+/* ===== 按钮 ===== */
+.btn {
+  padding: 9px 18px;
+  border-radius: 20px;
+  border: none;
+  font-size: 12px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.25s;
+  font-family: "Georgia", "Noto Serif SC", serif;
+  letter-spacing: 0.5px;
+}
+.btn:active { transform: scale(0.96); }
+.btn-primary {
+  background: var(--rose);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--rose-deep); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--text);
+}
+.btn-outline:hover {
+  background: var(--rose);
+  color: #fff;
+  border-color: var(--rose);
+}
+.btn-danger {
+  background: #E88888;
+  color: #fff;
+}
+.btn-sm { padding: 6px 14px; font-size: 11px; }
+.btn-icon {
+  width: 30px; height: 30px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: var(--cream);
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  color: var(--text-secondary);
+}
+.btn-icon:hover {
+  border-color: var(--gold);
+  background: var(--card-bg);
+}
+
+/* ===== 空状态 ===== */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-secondary);
+}
+.empty-icon { font-size: 42px; margin-bottom: 14px; opacity: 0.7; }
+.empty-state p {
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-style: italic;
+}
+.empty-hint { font-size: 11px; color: #bbb; }
+.empty-state .btn { margin-top: 18px; }
+
+/* ===== 名言明信片弹窗 ===== */
+.quote-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(60, 40, 30, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+.quote-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+.quote-card {
+  background: linear-gradient(180deg, #FFFEFC 0%, #FAF6F2 100%);
+  padding: 32px 28px 24px;
+  border-radius: 16px;
+  max-width: 300px;
+  width: 85%;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(100, 70, 50, 0.18);
+  animation: postcardIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  border: 1.5px solid var(--gold);
+}
+/* 明信片四角装饰 */
+.quote-card::before {
+  content: '';
+  position: absolute;
+  top: 8px; left: 10px;
+  width: 14px; height: 14px;
+  border-left: 1px solid var(--gold);
+  border-top: 1px solid var(--gold);
+  opacity: 0.5;
+}
+.quote-card::after {
+  content: '';
+  position: absolute;
+  bottom: 8px; right: 10px;
+  width: 14px; height: 14px;
+  border-right: 1px solid var(--gold);
+  border-bottom: 1px solid var(--gold);
+  opacity: 0.5;
+}
+/* 角落小花装饰 */
+.quote-flower {
+  position: absolute;
+  font-size: 20px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.quote-flower.tl { top: -4px; left: 4px; }
+.quote-flower.br { bottom: -2px; right: 6px; transform: rotate(180deg); }
+@keyframes postcardIn {
+  from { transform: scale(0.6) translateY(30px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+.quote-icon {
+  font-size: 32px;
+  margin-bottom: 14px;
+  opacity: 0.7;
+}
+.quote-text {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.8;
+  color: #5D3A1A;
+  margin-bottom: 16px;
+  font-family: "Georgia", "Noto Serif SC", serif;
+  letter-spacing: 0.5px;
+}
+.quote-movie {
+  font-size: 11px;
+  color: #A08070;
+  font-style: italic;
+  letter-spacing: 1px;
+}
+.quote-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  border: none;
+  background: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #B09080;
+  padding: 4px;
+  transition: color 0.2s;
+}
+.quote-close:hover { color: var(--text); }
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed;
+  bottom: 84px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #5D4A3A;
+  color: var(--cream);
+  padding: 10px 22px;
+  border-radius: 20px;
+  font-size: 12px;
+  z-index: 1001;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  font-family: "Georgia", "Noto Serif SC", serif;
+  letter-spacing: 0.5px;
+}
+.toast.show { opacity: 1; }
+
+/* ===== 模态框 ===== */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(60, 40, 30, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+.modal-box {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 360px;
+  max-height: 82vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(100, 70, 50, 0.15);
+  border: 1px solid var(--gold-light);
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--gold-light);
+}
+.modal-header h3 {
+  font-size: 15px;
+  font-weight: 400;
+  font-family: "Georgia", "Noto Serif SC", serif;
+  letter-spacing: 1px;
+}
+.modal-close-btn {
+  border: none;
+  background: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  transition: color 0.2s;
+}
+.modal-close-btn:hover { color: var(--text); }
+.modal-body { padding: 18px 22px; }
+.modal-body label {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  margin-top: 14px;
+  font-family: "Georgia", "Noto Serif SC", serif;
+  letter-spacing: 0.5px;
+  font-style: italic;
+}
+.modal-body label:first-child { margin-top: 0; }
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--gold-light);
+  border-radius: 12px;
+  font-size: 13px;
+  outline: none;
+  transition: border 0.2s;
+  background: var(--cream);
+  color: var(--text);
+  font-family: "Georgia", "Noto Serif SC", serif;
+}
+.form-input:focus { border-color: var(--rose); }
+select.form-input { appearance: none; cursor: pointer; }
+.modal-footer {
+  display: flex;
+  gap: 10px;
+  padding: 16px 22px;
+  border-top: 1px solid var(--gold-light);
+  justify-content: flex-end;
+}
+
+/* ===== 统计 ===== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  padding: 20px 16px;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  text-align: center;
+}
+.stat-num {
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--rose-deep);
+  font-family: "Georgia", serif;
+}
+.stat-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  font-style: italic;
+  letter-spacing: 0.5px;
+}
+
+.habit-stat-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.habit-stat-name {
+  width: 90px;
+  font-size: 12px;
+  flex-shrink: 0;
+  letter-spacing: 0.3px;
+}
+.habit-stat-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: var(--gold-light);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.habit-stat-bar {
+  height: 100%;
+  background: var(--rose);
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.habit-stat-num {
+  font-size: 11px;
+  color: var(--text-secondary);
+  width: 36px;
+  text-align: right;
+  font-style: italic;
+}
+
+/* ===== 热力图 ===== */
+.heatmap { margin: 14px 0; }
+.heatmap-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+}
+.heatmap-cell {
+  width: 15px; height: 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.heatmap-cell:hover { transform: scale(1.3); }
+.heatmap-cell.level-1 { background: #F0EBE6; }
+.heatmap-cell.level-2 { background: #F8D0D8; }
+.heatmap-cell.level-3 { background: var(--rose-deep); }
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+  font-size: 10px;
+  color: var(--text-secondary);
+  justify-content: center;
+  font-style: italic;
+}
+.heatmap-legend .heatmap-cell { width: 11px; height: 11px; }
+
+/* ===== 设置 ===== */
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(212, 180, 131, 0.2);
+  font-size: 13px;
+  letter-spacing: 0.3px;
+}
+.setting-info { display: flex; align-items: center; gap: 10px; }
+.setting-actions { display: flex; gap: 4px; }
+
+.color-dot {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 1.5px solid rgba(0,0,0,0.06);
+}
+.color-picker { display: flex; gap: 10px; flex-wrap: wrap; }
+.color-radio { cursor: pointer; }
+.color-radio input { display: none; }
+.color-radio input:checked + .color-dot {
+  outline: 2px solid var(--rose);
+  outline-offset: 3px;
+}
+.color-radio .color-dot {
+  width: 30px; height: 30px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.about-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 20px 0;
+  font-style: italic;
+  letter-spacing: 1px;
+}
+
+/* ===== 子标题 ===== */
+.sub-header { margin-top: 16px; }
+/* ===== 时间轴 ===== */
+.timeline {
+  position: relative;
+  padding-left: 0;
+}
+.time-block {
+  position: relative;
+  margin-bottom: 8px;
+  padding-left: 24px;
+}
+.time-block::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 22px;
+  bottom: 0;
+  width: 1px;
+  background: var(--gold-light);
+}
+.time-block:last-child::before { display: none; }
+.time-block-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0 8px;
+}
+.time-dot {
+  position: absolute;
+  left: 3px;
+  top: 15px;
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  background: var(--rose);
+  border: 2px solid var(--cream);
+  z-index: 1;
+}
+.time-dot.unscheduled { background: var(--gold); }
+.time-label {
+  font-size: 14px;
+  font-weight: 400;
+  font-family: "Georgia", "Noto Serif SC", serif;
+  letter-spacing: 0.5px;
+  color: var(--text);
+}
+.time-range {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-style: italic;
+  letter-spacing: 0.3px;
+}
+.time-habits {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+/* ===== 连续天数横幅 ===== */
+.streak-banner {
+  background: linear-gradient(135deg, #FFF0F0 0%, #FFE8D0 100%);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  text-align: center;
+  border: 1px solid var(--gold-light);
+  box-shadow: var(--card-shadow);
+}
+.streak-flame { font-size: 32px; margin-bottom: 6px; }
+.streak-num {
+  font-size: 36px;
+  font-weight: 400;
+  color: var(--rose-deep);
+  font-family: "Georgia", serif;
+  line-height: 1;
+}
+.streak-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-style: italic;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+.streak-sub {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  opacity: 0.7;
+}
+
+/* ===== 微行动提示 ===== */
+.habit-min-action {
+  font-size: 11px;
+  color: var(--sage-dark);
+  background: rgba(148, 197, 180, 0.12);
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+/* ===== 未完成提醒 ===== */
+.undone-reminder {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(248, 200, 208, 0.15);
+  border-radius: 14px;
+  font-size: 13px;
+  color: var(--text);
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+.undone-reminder.all-done {
+  background: rgba(148, 197, 180, 0.15);
+}
+
+/* ===== 周回顾 ===== */
+.week-review {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+.week-day {
+  flex: 1;
+  text-align: center;
+  padding: 10px 4px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+}
+.week-day.today { border: 1.5px solid var(--rose); }
+.week-day.done { background: rgba(148, 197, 180, 0.08); }
+.week-day-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+.week-day-icon { font-size: 16px; margin-bottom: 2px; }
+.week-day-num { font-size: 12px; font-weight: 400; color: var(--text); }
+
+/* ===== 反思列表 ===== */
+.reflection-item {
+  padding: 12px 14px;
+  background: var(--card-bg);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  box-shadow: 0 1px 6px rgba(180, 150, 130, 0.05);
+}
+.reflection-date {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-bottom: 4px;
+}
+.reflection-text {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ===== 反思弹窗 ===== */
+.reflection-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(60, 40, 30, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1002;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+  backdrop-filter: blur(2px);
+}
+.reflection-overlay.show { opacity: 1; pointer-events: auto; }
+.reflection-card {
+  background: var(--card-bg);
+  padding: 24px 20px;
+  border-radius: var(--radius);
+  max-width: 320px;
+  width: 85%;
+  box-shadow: 0 20px 50px rgba(100, 70, 50, 0.15);
+  border: 1px solid var(--gold-light);
+}
+.reflection-title {
+  font-size: 15px;
+  font-weight: 400;
+  font-family: "Georgia", "Noto Serif SC", serif;
+  margin-bottom: 12px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+.reflection-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--gold-light);
+  border-radius: 12px;
+  font-size: 13px;
+  outline: none;
+  resize: none;
+  background: var(--cream);
+  font-family: "Georgia", "Noto Serif SC", serif;
+  min-height: 60px;
+}
+.reflection-input:focus { border-color: var(--rose); }
+.reflection-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  justify-content: flex-end;
+}
+
+/* ===== 成就弹窗 ===== */
+.achievement-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(60, 40, 30, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.achievement-overlay.show { opacity: 1; pointer-events: auto; }
+.achievement-card {
+  background: linear-gradient(180deg, #FFFEFC 0%, #FFF0E8 100%);
+  padding: 28px 24px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(100, 70, 50, 0.18);
+  border: 1.5px solid var(--gold);
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  max-width: 280px;
+}
+.achievement-icon { font-size: 44px; margin-bottom: 10px; }
+.achievement-title {
+  font-size: 17px;
+  font-family: "Georgia", "Noto Serif SC", serif;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: var(--text);
+}
+.achievement-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: 4px;
+}
+/* ===== 计数型习惯 ===== */
+.habit-counter {
+  font-size: 12px;
+  color: var(--sage-dark);
+  font-weight: 400;
+  background: rgba(148, 197, 180, 0.12);
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+.counter-progress {
+  height: 6px;
+  background: var(--gold-light);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 8px;
+  flex: 1;
+  max-width: 120px;
+}
+.counter-fill {
+  height: 100%;
+  background: var(--rose);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+.counter-btn {
+  width: 40px !important;
+  height: 40px !important;
+  border: 2px dashed var(--gold-light) !important;
+}
+.counter-btn .check-icon {
+  font-size: 20px;
+  color: var(--sage-dark);
+  font-weight: 700;
+}
+.counter-btn.checked { border: 2px solid var(--rose-deep) !important;
+}
+.counter-btn.checked .check-icon { color: #D4B483; font-weight: bold;
+}
+
+/* ===== 提示用户清除旧数据 ===== */
+.upgrade-hint {
+  text-align: center;
+  padding: 10px;
+  margin: 10px 0;
+  background: rgba(248, 200, 208, 0.2);
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+.check-btn.checked .check-icon { color: #D4B483; font-weight: bold; font-size: 22px; }
+
+</style>
+</head>
+<body>
+<header class="app-header"><h1>习惯打卡</h1><div class="date-sub" id="today-date"></div></header>
+<div class="page" id="page-today"><div class="banner"><span class="banner-text">Every day is a new page.</span></div><div id="today-content"></div></div>
+<div class="page hidden" id="page-stats"><div class="banner"><span class="banner-text">Small steps, big changes.</span></div><div id="stats-content"></div></div>
+<div class="page hidden" id="page-settings"><div class="banner"><span class="banner-text">Curate your space.</span></div><div id="settings-content"></div></div>
+<nav class="bottom-nav">
+<button class="nav-item active" data-page="today"><span class="nav-icon">🏠</span><span>今天</span></button>
+<button class="nav-item" data-page="stats"><span class="nav-icon">📊</span><span>统计</span></button>
+<button class="nav-item" data-page="settings"><span class="nav-icon">⚙️</span><span>设置</span></button>
+</nav>
+<div class="quote-overlay" id="quote-modal"><div class="quote-card"><button class="quote-close" id="modal-close">✕</button><span class="quote-flower tl">🌸</span><span class="quote-flower br">🌸</span><div class="quote-icon">🎬</div><div class="quote-text" id="quote-text"></div><div class="quote-movie" id="quote-movie"></div></div></div>
+<div class="achievement-overlay" id="achievement-modal"><div class="achievement-card"><div class="achievement-icon" id="achievement-icon"></div><div class="achievement-title" id="achievement-title"></div><div class="achievement-desc" id="achievement-desc"></div></div></div>
+<div class="reflection-overlay" id="reflection-modal"><div class="reflection-card"><div class="reflection-title">✨ 今天感觉如何？</div><input class="reflection-input" id="reflection-input" placeholder="写一句话..."><div class="reflection-actions"><button class="btn btn-sm btn-outline" onclick="skipReflection()">跳过</button><button class="btn btn-sm btn-primary" onclick="saveReflection()">保存</button></div></div></div>
+<div class="toast" id="toast"></div>
+<script>
+﻿// ========== 数据层 - IndexedDB ==========
+const DB_NAME = 'HabitTrackerDB';
+const DB_VERSION = 2;
+
+let db = null;
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('categories')) {
+        const catStore = db.createObjectStore('categories', { keyPath: 'id', autoIncrement: true });
+        catStore.createIndex('sortOrder', 'sortOrder');
+      }
+      if (!db.objectStoreNames.contains('plans')) {
+        const planStore = db.createObjectStore('plans', { keyPath: 'id', autoIncrement: true });
+        planStore.createIndex('active', 'active');
+      }
+      if (!db.objectStoreNames.contains('habits')) {
+        const habitStore = db.createObjectStore('habits', { keyPath: 'id', autoIncrement: true });
+        habitStore.createIndex('categoryId', 'categoryId');
+        habitStore.createIndex('planId', 'planId');
+        habitStore.createIndex('archived', 'archived');
+      }
+      if (!db.objectStoreNames.contains('checkins')) {
+        const checkinStore = db.createObjectStore('checkins', { keyPath: 'id', autoIncrement: true });
+        checkinStore.createIndex('habitDate', ['habitId', 'date'], { unique: true });
+      }
+      if (!db.objectStoreNames.contains('quotes')) {
+        if (!db.objectStoreNames.contains('reflections')) { db.createObjectStore('reflections', { keyPath: 'id', autoIncrement: true }); }
+      if (!db.objectStoreNames.contains('quotes')) { db.createObjectStore('quotes', { keyPath: 'id', autoIncrement: true }); }
+      }
+    };
+    request.onsuccess = (e) => { db = e.target.result; resolve(db); };
+    request.onerror = (e) => reject(e.target.error);
+  });
+}
+
+function tx(storeName, mode = 'readonly') {
+  return db.transaction(storeName, mode).objectStore(storeName);
+}
+
+function promisify(request) {
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+// ===== 分类 CRUD =====
+async function getCategories() {
+  const items = await promisify(tx('categories').getAll());
+  const idx = tx('categories').index('sortOrder');
+  const sorted = await promisify(idx.getAll());
+  return sorted.length ? sorted : items;
+}
+
+async function addCategory(cat) {
+  cat.sortOrder = Date.now();
+  return promisify(tx('categories', 'readwrite').add(cat));
+}
+
+async function updateCategory(id, data) {
+  return promisify(tx('categories', 'readwrite').put({ ...data, id }));
+}
+
+async function deleteCategory(id) {
+  return promisify(tx('categories', 'readwrite').delete(id));
+}
+
+// ===== 习惯 CRUD =====
+async function getHabits(filter = {}) {
+  const all = await promisify(tx('habits').getAll());
+  let result = all.filter(h => !h.archived);
+  if (filter.categoryId) result = result.filter(h => h.categoryId === filter.categoryId);
+  if (filter.planId) result = result.filter(h => h.planId === filter.planId);
+  return result.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+}
+
+async function getHabitById(id) {
+  return promisify(tx('habits').get(id));
+}
+
+async function addHabit(habit) {
+  habit.archived = false;
+  habit.createdAt = new Date().toISOString();
+  habit.sortOrder = Date.now();
+  return promisify(tx('habits', 'readwrite').add(habit));
+}
+
+async function updateHabit(id, data) {
+  return promisify(tx('habits', 'readwrite').put({ ...data, id }));
+}
+
+async function deleteHabit(id) {
+  return promisify(tx('habits', 'readwrite').delete(id));
+}
+
+async function archiveHabit(id) {
+  const habit = await getHabitById(id);
+  habit.archived = true;
+  return updateHabit(id, habit);
+}
+
+// ===== 打卡 CRUD =====
+
+async function incrementCheckin(habitId, dateStr) {
+  const store = tx('checkins', 'readwrite');
+  const idx = store.index('habitDate');
+  const existing = await promisify(idx.get([habitId, dateStr]));
+  if (existing) {
+    existing.count = (existing.count || 1) + 1;
+    return promisify(store.put(existing));
+  }
+  return promisify(store.add({ habitId, date: dateStr, completed: false, count: 1, timestamp: new Date().toISOString() }));
+}
+
+async function completeCheckin(habitId, dateStr) {
+  const store = tx('checkins', 'readwrite');
+  const idx = store.index('habitDate');
+  const existing = await promisify(idx.get([habitId, dateStr]));
+  if (existing) {
+    existing.completed = true;
+    existing.count = existing.count || 1;
+    return promisify(store.put(existing));
+  }
+  return promisify(store.add({ habitId, date: dateStr, completed: true, count: 1, timestamp: new Date().toISOString() }));
+}
+
+async function getCheckinCount(habitId, dateStr) {
+  const all = await promisify(tx('checkins').getAll());
+  const found = all.find(c => c.habitId === habitId && c.date === dateStr);
+  return found ? (found.count || 0) : 0;
+}
+
+async function checkin(habitId, dateStr) {
+  const store = tx('checkins', 'readwrite');
+  const idx = store.index('habitDate');
+  const existing = await promisify(idx.get([habitId, dateStr]));
+  if (existing) {
+    existing.completed = !existing.completed;
+    return promisify(store.put(existing));
+  }
+  return promisify(store.add({ habitId, date: dateStr, completed: true, timestamp: new Date().toISOString() }));
+}
+
+async function getCheckinsForDate(dateStr) {
+  const all = await promisify(tx('checkins').getAll());
+  return all.filter(c => c.date === dateStr);
+}
+
+async function getCheckinsForHabit(habitId, fromDate, toDate) {
+  const all = await promisify(tx('checkins').getAll());
+  return all.filter(c => c.habitId === habitId && c.date >= fromDate && c.date <= toDate && c.completed);
+}
+
+async function getAllCheckins(fromDate, toDate) {
+  const all = await promisify(tx('checkins').getAll());
+  return all.filter(c => c.date >= fromDate && c.date <= toDate && c.completed);
+}
+
+// ===== 计划 CRUD =====
+async function getPlans() {
+  return promisify(tx('plans').getAll());
+}
+
+async function getActivePlan() {
+  const all = await promisify(tx('plans').getAll());
+  return all.find(p => p.active) || null;
+}
+
+async function addPlan(plan) {
+  plan.active = true;
+  plan.createdAt = new Date().toISOString();
+  return promisify(tx('plans', 'readwrite').add(plan));
+}
+
+async function updatePlan(id, data) {
+  return promisify(tx('plans', 'readwrite').put({ ...data, id }));
+}
+
+async function deletePlan(id) {
+  return promisify(tx('plans', 'readwrite').delete(id));
+}
+
+async function setActivePlan(id) {
+  const all = await promisify(tx('plans', 'readwrite').getAll());
+  for (const p of all) {
+    p.active = (p.id === id);
+    await promisify(tx('plans', 'readwrite').put(p));
+  }
+}
+
+// ===== 名言 =====
+async function getRandomQuote() {
+  const all = await promisify(tx('quotes').getAll());
+  if (all.length === 0) return null;
+  return all[Math.floor(Math.random() * all.length)];
+}
+
+async function seedQuotes(quotes) {
+  const store = tx('quotes', 'readwrite');
+  for (const q of quotes) {
+    store.add(q);
+  }
+  return promisify(store.transaction);
+}
+
+</script>
+<script>
+﻿// ========== 电影励志名言库 ==========
+const MOVIE_QUOTES = [
+  { text: '希望是美好的，也许是世间最美好的东西，而美好的事物永不消逝。', movie: '肖申克的救赎', year: '1994' },
+  { text: '人生就像一盒巧克力，你永远不知道下一颗是什么味道。', movie: '阿甘正传', year: '1994' },
+  { text: '如果你有梦想，就要去捍卫它。', movie: '当幸福来敲门', year: '2006' },
+  { text: '不要让别人告诉你，你成不了才。', movie: '当幸福来敲门', year: '2006' },
+  { text: '昨天是历史，明天是谜团，而今天是礼物。', movie: '功夫熊猫', year: '2008' },
+  { text: '伟大的事都是靠冲动、激情，而不是靠冷静和理性。', movie: '三傻大闹宝莱坞', year: '2009' },
+  { text: '追求卓越，成功就会在不经意间追上你。', movie: '三傻大闹宝莱坞', year: '2009' },
+  { text: '让你的心跪下来，你永远不知道它能为你做什么。', movie: '三傻大闹宝莱坞', year: '2009' },
+  { text: '没有事情是偶然的，一切都有原因。', movie: '功夫熊猫', year: '2008' },
+  { text: '你的时间是有限的，不要浪费在重复别人的生活上。', movie: '乔布斯', year: '2015' },
+  { text: '不尝试的话，连失败的机会都没有。', movie: '辛普森一家', year: '2007' },
+  { text: '有些鸟是注定不会被关在笼子里的。', movie: '肖申克的救赎', year: '1994' },
+  { text: '要么忙着活，要么忙着死。', movie: '肖申克的救赎', year: '1994' },
+  { text: '勇气不是没有恐惧，而是判断出有比恐惧更重要的东西。', movie: '公主日记', year: '2001' },
+  { text: '我们的生命不仅仅属于我们自己，也属于那些爱我们的人。', movie: '星际穿越', year: '2014' },
+  { text: '现在就是最好的时机。', movie: '死亡诗社', year: '1989' },
+  { text: '抓住今天，孩子们。让你们的生命非凡。', movie: '死亡诗社', year: '1989' },
+  { text: '你必须相信，你现在做的点点滴滴会以某种方式连接你的未来。', movie: '乔布斯', year: '2015' },
+  { text: '这个世界不缺乏完美的人，缺乏的是真心、正直、勇气和善良。', movie: '西雅图未眠夜', year: '1993' },
+  { text: '我不是一个聪明的人，但我知道什么是爱。', movie: '阿甘正传', year: '1994' },
+  { text: '不要放弃你的幻想。当幻想没有了以后，你还可以生存，但是你虽生犹死。', movie: '了不起的盖茨比', year: '2013' },
+  { text: '我们读诗写诗，并不是因为它们好玩，而是因为我们是人类的一分子。', movie: '死亡诗社', year: '1989' },
+  { text: '你比你想象的要勇敢，比你看起来要坚强，比你认为的要聪明。', movie: '小熊维尼', year: '2011' },
+  { text: '最难的是下定决心，剩下的只是坚持。', movie: '荒野生存', year: '2007' },
+  { text: '今天做不成的，明天也不会做好，一天也不能虚度。', movie: '乱世佳人', year: '1939' },
+  { text: '星星之所以美丽，是因为有一朵看不见的花。', movie: '小王子', year: '2015' },
+  { text: '真正重要的东西，用眼睛是看不见的。', movie: '小王子', year: '2015' },
+  { text: '不要温和地走进那个良夜。', movie: '星际穿越', year: '2014' },
+  { text: '你唯一的限制，就是你的灵魂所创造的限制。', movie: '料理鼠王', year: '2007' },
+  { text: '每个人都能做菜，但只有勇者才能成为大厨。', movie: '料理鼠王', year: '2007' },
+];
+
+</script>
+<script>
+﻿// ===== 习惯打卡 - 完整版 =====
+let currentPage='today';
+
+document.addEventListener('DOMContentLoaded',async()=>{
+ try{await openDB();await initData();setupNav();await renderToday();}
+ catch(e){document.getElementById('today-content').innerHTML='<div style="padding:20px;color:#c00">加载失败: '+e.message+'<br>请到设置页清除数据后刷新</div>';}
+});
+
+function setupNav(){
+ document.querySelectorAll('.nav-item').forEach(item=>{
+  item.addEventListener('click',()=>navigateTo(item.dataset.page));
+ });
+}
+
+async function navigateTo(page){
+ currentPage=page;
+ document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+ var el=document.querySelector('.nav-item[data-page="'+page+'"]');
+ if(el)el.classList.add('active');
+ document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
+ var pg=document.getElementById('page-'+page);
+ if(pg)pg.classList.remove('hidden');
+ if(page==='today')await renderToday();
+ else if(page==='stats')await renderStats();
+ else if(page==='settings')await renderSettings();
+}
+
+function todayStr(){
+ var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function formatDate(ds){var d=new Date(ds);return (d.getMonth()+1)+'月'+d.getDate()+'日';}
+function weekDay(ds){return ['日','一','二','三','四','五','六'][new Date(ds).getDay()];}
+function showToast(m){var el=document.getElementById('toast');el.textContent=m;el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2000);}
+
+// ===== 初始化 =====
+async function initData(){
+ var cats=await getCategories();
+ if(cats.length===0){
+  var defs=[{name:'🏃 运动',color:'#4CAF50',icon:'',sortOrder:1},{name:'📚 学习',color:'#2196F3',icon:'',sortOrder:2},{name:'🧘 生活',color:'#FF9800',icon:'',sortOrder:3},{name:'💼 工作',color:'#9C27B0',icon:'',sortOrder:4}];
+  for(var i=0;i<defs.length;i++)await addCategory(defs[i]);
+ }
+ var allCats=await getCategories();
+ var habits=await getHabits();
+ if(habits.length===0){
+  await addHabit({name:'晨跑30分钟',categoryId:allCats[0].id,frequency:'daily',habitType:'binary',targetCount:0,minAction:'穿上跑鞋',reminderTime:'',archived:false,sortOrder:1});
+  await addHabit({name:'阅读30分钟',categoryId:allCats[1].id,frequency:'daily',habitType:'binary',targetCount:0,minAction:'翻开书',reminderTime:'',archived:false,sortOrder:2});
+  await addHabit({name:'喝8杯水',categoryId:allCats[2].id,frequency:'daily',habitType:'counter',targetCount:8,minAction:'喝一口水',reminderTime:'',archived:false,sortOrder:3});
+  await addHabit({name:'冥想10分钟',categoryId:allCats[2].id,frequency:'daily',habitType:'binary',targetCount:0,minAction:'闭眼深呼吸',reminderTime:'',archived:false,sortOrder:4});
+ }
+ // 迁移
+ var allH=await getHabits();
+ for(var j=0;j<allH.length;j++){
+  var h=allH[j];
+  var changed=false;
+  if(!h.habitType){h.habitType=h.name.includes('杯水')?'counter':'binary';changed=true;}
+  if(!h.targetCount&&h.habitType==='counter'){h.targetCount=parseInt(h.name.match(/\d+/))||8;changed=true;}
+  if(!h.minAction){h.minAction='';changed=true;}
+  if(changed)await updateHabit(h.id,h);
+ }
+}
+
+// ===== 总连续天数 =====
+async function calcTotalStreak(){
+ var streak=0,d=new Date();d.setDate(d.getDate()-1);
+ while(true){
+  var ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  var all=await getCheckinsForDate(ds);
+  if(all.filter(function(c){return c.completed;}).length>0){streak++;d.setDate(d.getDate()-1);}else break;
+ }
+ var today=await getCheckinsForDate(todayStr());
+ if(today.filter(function(c){return c.completed;}).length>0)streak++;
+ return streak;
+}
+
+// ===== 成就 =====
+function getAchievements(checkins){
+ var totalDays=new Set(checkins.filter(function(c){return c.completed;}).map(function(c){return c.date;})).size;
+ var total=checkins.filter(function(c){return c.completed;}).length;
+ var a=[];
+ if(totalDays>=3)a.push({icon:'🌟',title:'初次连击',desc:'累计打卡满3天'});
+ if(totalDays>=7)a.push({icon:'🏅',title:'一周满勤',desc:'累计打卡满7天'});
+ if(totalDays>=30)a.push({icon:'🏆',title:'月度冠军',desc:'累计打卡满30天'});
+ if(total>=100)a.push({icon:'⭐',title:'百次达人',desc:'累计打卡100次'});
+ return a;
+}
+
+// ===== 名言弹窗 =====
+async function showQuoteModal(){
+ var allQ=await promisify(tx('quotes').getAll());
+ if(allQ.length===0){
+  try{await seedQuotes(MOVIE_QUOTES);allQ=await promisify(tx('quotes').getAll());}catch(e){}
+ }
+ if(allQ.length===0)return;
+ var q=allQ[Math.floor(Math.random()*allQ.length)];
+ document.getElementById('quote-text').textContent=q.text;
+ document.getElementById('quote-movie').textContent='—《'+q.movie+'》('+q.year+')';
+ document.getElementById('quote-modal').classList.add('show');
+ setTimeout(function(){document.getElementById('quote-modal').classList.remove('show');},4000);
+}
+
+document.getElementById('quote-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
+document.getElementById('modal-close').addEventListener('click',function(){document.getElementById('quote-modal').classList.remove('show');});
+
+// ===== 成就弹窗 =====
+async function showAchievementModal(achievements){
+ if(achievements.length===0)return;
+ var a=achievements[achievements.length-1];
+ document.getElementById('achievement-icon').textContent=a.icon;
+ document.getElementById('achievement-title').textContent=a.title;
+ document.getElementById('achievement-desc').textContent=a.desc;
+ document.getElementById('achievement-modal').classList.add('show');
+ setTimeout(function(){document.getElementById('achievement-modal').classList.remove('show');},3500);
+}
+
+// ===== 反思弹窗 =====
+function showReflectionModal(){
+ document.getElementById('reflection-modal').classList.add('show');
+ document.getElementById('reflection-input').focus();
+}
+async function saveReflection(){
+ var text=document.getElementById('reflection-input').value.trim();
+ document.getElementById('reflection-modal').classList.remove('show');
+ document.getElementById('reflection-input').value='';
+ if(!text)return;
+ try{var store=tx('reflections','readwrite');store.add({date:todayStr(),text:text,timestamp:new Date().toISOString()});showToast('反思已保存 ✨');}catch(e){}
+}
+function skipReflection(){document.getElementById('reflection-modal').classList.remove('show');document.getElementById('reflection-input').value='';}
+
+// ===== 打卡 =====
+async function doCheckin(habitId,dateStr,btnEl,isCounter,targetCount){
+ if(isCounter){
+  var cnt=await getCheckinCount(habitId,dateStr);
+  // If already full, reset for today
+  if(cnt>=targetCount){
+   // Reset: clear today's checkin for this habit
+   var store=tx('checkins','readwrite');
+   var idx=store.index('habitDate');
+   var existing=await promisify(idx.get([habitId,dateStr]));
+   if(existing){existing.count=0;existing.completed=false;await promisify(store.put(existing));}
+   await renderToday();
+   return;
+  }
+  await incrementCheckin(habitId,dateStr);cnt++;
+  if(cnt>=targetCount){
+   await completeCheckin(habitId,dateStr);
+   await checkAchievements(dateStr);
+   await showQuoteModal();
+   if(await allDone())setTimeout(function(){showReflectionModal();},4500);
+  }
+ }else{
+  await checkin(habitId,dateStr);
+  var cks=await getCheckinsForDate(dateStr);
+  var hc=cks.find(function(c){return c.habitId===habitId;});
+  if(hc&&hc.completed){
+   await checkAchievements(dateStr);
+   await showQuoteModal();
+   if(await allDone())setTimeout(function(){showReflectionModal();},4500);
+  }
+ }
+ await renderToday();
+}
+
+async function checkAchievements(dateStr){
+ var allCk=await getAllCheckins('2000-01-01',dateStr);
+ var ach=getAchievements(allCk);
+ if(ach.length>0)await showAchievementModal(ach);
+}
+
+async function allDone(){
+ var habits=await getHabits();
+ if(habits.length===0)return false;
+ var cks=await getCheckinsForDate(todayStr());
+ for(var i=0;i<habits.length;i++){
+  var c=cks.find(function(ck){return ck.habitId===habits[i].id;});
+  if(!c||!c.completed)return false;
+ }
+ return true;
+}
+
+// ===== 今天页面 =====
+async function renderToday(){
+ var container=document.getElementById('today-content');
+ var date=todayStr();
+ document.getElementById('today-date').textContent=formatDate(date)+' 星期'+weekDay(date);
+ var habits=await getHabits();
+ var checkins=await getCheckinsForDate(date);
+ var totalStreak=await calcTotalStreak();
+
+ if(habits.length===0){
+  container.innerHTML='<div class="empty-state"><div class="empty-icon">🌱</div><p>还没有习惯</p><p class="empty-hint">点击下方按钮创建</p></div><div style="text-align:center;margin-top:20px"><button class="btn btn-primary" onclick="showHabitForm()">+ 新建习惯</button></div>';
+  return;
+ }
+
+ var html='';
+ html+='<div class="streak-banner"><div class="streak-flame">🔥</div><div class="streak-info"><div class="streak-num">'+totalStreak+'</div><div class="streak-label">连续打卡天数</div></div><div class="streak-sub">'+(totalStreak>0?'太棒了，继续保持！':'今天开始吧 💪')+'</div></div>';
+ html+='<div class="habit-list">';
+
+ for(var i=0;i<habits.length;i++){
+  var habit=habits[i];
+  var catColor='#4CAF50';
+  if(habit.categoryId===2)catColor='#2196F3';
+  else if(habit.categoryId===3)catColor='#FF9800';
+  else if(habit.categoryId===4)catColor='#9C27B0';
+
+  if(habit.habitType==='counter'){
+   var tgt=habit.targetCount||8;
+   var cur=await getCheckinCount(habit.id,date);
+   var full=cur>=tgt;
+   var pct=Math.min(cur/tgt*100,100);
+   html+='<div class="habit-card" style="--cat-color:'+catColor+'"><div class="habit-info"><div class="habit-name">'+habit.name+'</div>';
+   html+='<div class="habit-meta"><span class="habit-counter">'+cur+'/'+tgt+'</span></div>';
+   html+='<div class="counter-progress"><div class="counter-fill" style="width:'+pct+'%"></div></div></div>';
+   html+='<button class="check-btn counter-btn'+(full?' checked':'')+'" onclick="doCheckin('+habit.id+',\''+date+'\',this,true,'+tgt+')"><span class="check-icon">'+(full?'✓':'+')+'</span></button></div>';
+  }else{
+   var ck=checkins.find(function(c){return c.habitId===habit.id;});
+   var checked=ck&&ck.completed;
+   html+='<div class="habit-card" style="--cat-color:'+catColor+'"><div class="habit-info"><div class="habit-name">'+habit.name+'</div>';
+   html+='<div class="habit-meta">';
+   if(habit.minAction&&!checked)html+='<span class="habit-min-action">👉 '+habit.minAction+'</span>';
+   html+='</div></div>';
+   html+='<button class="check-btn'+(checked?' checked':'')+'" onclick="doCheckin('+habit.id+',\''+date+'\',this,false,0)"><span class="check-icon">'+(checked?'✓':'○')+'</span></button></div>';
+  }
+ }
+ html+='</div>';
+
+ var done=checkins.filter(function(c){return c.completed;}).length;
+ html+='<div class="today-summary"><div class="summary-item"><span class="summary-num">'+done+'/'+habits.length+'</span><span class="summary-label">今日完成</span></div>';
+ html+='<div class="summary-progress"><div class="progress-bar"><div class="progress-fill" style="width:'+(habits.length>0?(done/habits.length*100):0)+'%"></div></div></div></div>';
+
+ var undone=habits.length-done;
+ if(undone>0)html+='<div class="undone-reminder"><span>💬</span> 还有 <strong>'+undone+'</strong> 项等你完成 ✨</div>';
+ else html+='<div class="undone-reminder all-done"><span>🎉</span> 今日全部完成！</div>';
+
+ html+='<div style="text-align:center;margin-top:16px"><button class="btn btn-outline btn-sm" onclick="showHabitForm()">+ 管理习惯</button></div>';
+ container.innerHTML=html;
+}
+
+// ===== 统计页面 =====
+async function renderStats(){
+ var container=document.getElementById('stats-content');
+ try{
+  var habits=await getHabits();
+  var today=new Date(),toDate=todayStr();
+  var fromDate=new Date(today);fromDate.setDate(fromDate.getDate()-90);
+  var fromStr=fromDate.getFullYear()+'-'+String(fromDate.getMonth()+1).padStart(2,'0')+'-'+String(fromDate.getDate()).padStart(2,'0');
+  var allCheckins=await getAllCheckins(fromStr,toDate);
+  var totalDays=allCheckins.length>0?new Set(allCheckins.map(function(c){return c.date;})).size:0;
+  var totalStreak=await calcTotalStreak();
+
+  var html='<div class="stats-grid">';
+  html+='<div class="stat-card"><div class="stat-num">'+totalDays+'</div><div class="stat-label">活跃天数</div></div>';
+  html+='<div class="stat-card"><div class="stat-num">'+allCheckins.length+'</div><div class="stat-label">总打卡数</div></div>';
+  html+='<div class="stat-card"><div class="stat-num">'+totalStreak+'</div><div class="stat-label">当前连击</div></div>';
+  html+='<div class="stat-card"><div class="stat-num">'+habits.length+'</div><div class="stat-label">进行中</div></div></div>';
+
+  // 周回顾
+  html+='<div class="section"><div class="section-header"><h3>📅 本周回顾</h3></div>';
+  var dow=today.getDay();var mon=new Date(today);mon.setDate(today.getDate()-(dow===0?6:dow-1));
+  html+='<div class="week-review">';
+  var wds=['一','二','三','四','五','六','日'];
+  for(var i=0;i<7;i++){
+   var d2=new Date(mon);d2.setDate(mon.getDate()+i);
+   var ds2=d2.getFullYear()+'-'+String(d2.getMonth()+1).padStart(2,'0')+'-'+String(d2.getDate()).padStart(2,'0');
+   var dc=allCheckins.filter(function(c){return c.date===ds2&&c.completed;}).length;
+   var isTD=ds2===toDate;
+   html+='<div class="week-day'+(isTD?' today':'')+(dc>0?' done':'')+'"><div class="week-day-label">'+wds[i]+'</div><div class="week-day-icon">'+(dc>0?'✓':'⚪')+'</div><div class="week-day-num">'+dc+'</div></div>';
+  }
+  html+='</div></div>';
+
+  // 热力图
+  html+='<div class="section"><div class="section-header"><h3>📊 打卡热力图</h3></div><div class="heatmap" id="heatmap"></div></div>';
+
+  // 完成率
+  html+='<div class="section"><div class="section-header"><h3>📈 习惯完成率</h3></div>';
+  for(var j=0;j<habits.length;j++){
+   var hb=habits[j];var hc=allCheckins.filter(function(c){return c.habitId===hb.id;});
+   var rate=Math.round(hc.length/90*100);
+   html+='<div class="habit-stat-row"><div class="habit-stat-name">'+hb.name+'</div><div class="habit-stat-bar-bg"><div class="habit-stat-bar" style="width:'+rate+'%"></div></div><div class="habit-stat-num">'+hc.length+'天</div></div>';
+  }
+  html+='</div>';
+
+  // 反思
+  try{
+   var refs=await promisify(tx('reflections').getAll());
+   var recent=refs.filter(function(r){return r.date>=fromStr;}).reverse().slice(0,5);
+   if(recent.length>0){
+    html+='<div class="section"><div class="section-header"><h3>📝 近期反思</h3></div>';
+    for(var k=0;k<recent.length;k++){var r=recent[k];html+='<div class="reflection-item"><div class="reflection-date">'+formatDate(r.date)+'</div><div class="reflection-text">'+r.text+'</div></div>';}
+    html+='</div>';
+   }
+  }catch(e){}
+
+  container.innerHTML=html;
+  setTimeout(function(){renderHeatmap(allCheckins,fromDate,today);},100);
+ }catch(e){
+  container.innerHTML='<div class="empty-state"><div class="empty-icon">📊</div><p>统计加载中</p><p class="empty-hint">完成一些打卡后再来看吧</p></div>';
+ }
+}
+
+function renderHeatmap(checkins,fromDate,toDate){
+ var el=document.getElementById('heatmap');if(!el)return;
+ var dates=new Set(checkins.map(function(c){return c.date;}));
+ var html='<div class="heatmap-grid">';
+ var d=new Date(fromDate),end=new Date(toDate);
+ while(d<=end){
+  var ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  html+='<div class="heatmap-cell'+(dates.has(ds)?' level-3':' level-1')+'" title="'+ds+'"></div>';
+  d.setDate(d.getDate()+1);
+ }
+ html+='</div><div class="heatmap-legend"><span>少</span><span class="heatmap-cell level-1"></span><span class="heatmap-cell level-3"></span><span>多</span></div>';
+ el.innerHTML=html;
+}
+
+// ===== 习惯表单 =====
+async function showHabitForm(habit){
+ var isEdit=!!habit;
+ var cats=await getCategories();
+ var catOpts='';
+ for(var i=0;i<cats.length;i++){var c=cats[i];catOpts+='<option value="'+c.id+'"'+(habit&&habit.categoryId===c.id?' selected':'')+'>'+c.name+'</option>';}
+ var html='<div class="modal-overlay" id="form-modal"><div class="modal-box"><div class="modal-header"><h3>'+(isEdit?'编辑习惯':'新建习惯')+'</h3><button class="modal-close-btn" onclick="closeForm()">✕</button></div><div class="modal-body">';
+ html+='<label>习惯名称</label><input id="hn" class="form-input" value="'+(habit?habit.name:'')+'" placeholder="例如：每天阅读30分钟">';
+ html+='<label>分类</label><select id="hcat" class="form-input">'+catOpts+'</select>';
+ html+='<label>类型</label><select id="ht" class="form-input"><option value="binary"'+(habit&&habit.habitType==='counter'?'':' selected')+'>打卡型</option><option value="counter"'+(habit&&habit.habitType==='counter'?' selected':'')+'>计数型</option></select>';
+ html+='<label>目标次数(计数型)</label><input id="hcnt" class="form-input" type="number" value="'+(habit?(habit.targetCount||8):8)+'" min="1">';
+ html+='<label>微行动提示</label><input id="hma" class="form-input" value="'+(habit?(habit.minAction||''):'')+'" placeholder="例如：穿上跑鞋">';
+ html+='</div><div class="modal-footer"><button class="btn btn-primary" onclick="saveHabit('+(habit?habit.id:'null')+')">保存</button><button class="btn btn-outline" onclick="closeForm()">取消</button></div></div></div>';
+ document.body.insertAdjacentHTML('beforeend',html);
+ document.getElementById('form-modal').addEventListener('click',function(e){if(e.target===this)closeForm();});
+}
+
+async function saveHabit(id){
+ var name=document.getElementById('hn').value.trim();
+ if(!name){showToast('请输入名称');return;}
+ var data={
+  name:name,
+  categoryId:parseInt(document.getElementById('hcat').value),
+  frequency:'daily',
+  habitType:document.getElementById('ht').value,
+  targetCount:document.getElementById('ht').value==='counter'?parseInt(document.getElementById('hcnt').value)||8:0,
+  minAction:document.getElementById('hma').value.trim(),
+  reminderTime:'',reminderEnabled:false,archived:false,sortOrder:Date.now()
+ };
+ if(id)await updateHabit(id,data);else await addHabit(data);
+ closeForm();await renderToday();showToast(id?'已更新':'已创建');
+}
+
+async function editHabit(id){var h=await getHabitById(id);if(h)showHabitForm(h);}
+async function deleteHabitConfirm(id){if(!confirm('确定删除？'))return;await deleteHabit(id);await renderToday();showToast('已删除');}
+function closeForm(){var m=document.getElementById('form-modal');if(m)m.remove();}
+
+// ===== 设置页面 =====
+async function renderSettings(){
+ var container=document.getElementById('settings-content');
+ try{
+  var cats=await getCategories();
+  var html='<div class="section"><div class="section-header"><h3>🏷️ 分类管理</h3><button class="btn btn-sm btn-outline" onclick="showCatForm()">+ 新建分类</button></div>';
+  for(var i=0;i<cats.length;i++){
+   var c=cats[i];
+   html+='<div class="setting-row"><div class="setting-info"><span class="color-dot" style="background:'+c.color+'"></span><span>'+c.name+'</span></div>';
+   html+='<div class="setting-actions"><button class="btn-icon" onclick="editCat('+c.id+')">✏️</button><button class="btn-icon" onclick="deleteCat('+c.id+')">🗑️</button></div></div>';
+  }
+  html+='</div>';
+  html+='<div class="section"><div class="section-header"><h3>💾 数据管理</h3></div>';
+  html+='<div class="setting-row"><span>导出数据</span><button class="btn btn-sm btn-outline" onclick="exportData()">导出JSON</button></div>';
+  html+='<div class="setting-row"><span>导入数据</span><button class="btn btn-sm btn-outline" onclick="document.getElementById(\'import-file\').click()">选择文件</button><input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)"></div>';
+  html+='<div class="setting-row"><span>清除所有数据</span><button class="btn btn-sm btn-danger" onclick="clearAllData()">清除</button></div></div>';
+  html+='<div class="section"><div class="section-header"><h3>ℹ️ 关于</h3></div><div class="setting-row"><span>版本</span><span>2.0</span></div><p class="about-text">习惯打卡 — 用电影名言激励你每天进步 🎬</p></div>';
+  container.innerHTML=html;
+ }catch(e){container.innerHTML='<div class="empty-state"><p>设置加载失败</p></div>';}
+}
+
+async function showCatForm(cat){
+ var isEdit=!!cat;
+ var colors=['#4CAF50','#2196F3','#FF9800','#9C27B0','#E91E63','#00BCD4','#FF5722','#607D8B'];
+ var copts='';
+ for(var i=0;i<colors.length;i++){var c=colors[i];copts+='<label class="color-radio"><input type="radio" name="cc" value="'+c+'"'+(cat&&cat.color===c?' checked':'')+'><span class="color-dot" style="background:'+c+'"></span></label>';}
+ var html='<div class="modal-overlay" id="form-modal"><div class="modal-box"><div class="modal-header"><h3>'+(isEdit?'编辑':'新建')+'分类</h3><button class="modal-close-btn" onclick="closeForm()">✕</button></div><div class="modal-body"><label>名称</label><input id="cn" class="form-input" value="'+(cat?cat.name:'')+'"><label>颜色</label><div class="color-picker">'+copts+'</div></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveCat('+(cat?cat.id:'null')+')">保存</button><button class="btn btn-outline" onclick="closeForm()">取消</button></div></div></div>';
+ document.body.insertAdjacentHTML('beforeend',html);
+ document.getElementById('form-modal').addEventListener('click',function(e){if(e.target===this)closeForm();});
+}
+
+async function saveCat(id){
+ var name=document.getElementById('cn').value.trim();
+ if(!name){showToast('请输入名称');return;}
+ var ce=document.querySelector('input[name="cc"]:checked');
+ var color=ce?ce.value:'#4CAF50';
+ if(id)await updateCategory(id,{name:name,color:color});else await addCategory({name:name,color:color,icon:'',sortOrder:Date.now()});
+ closeForm();await renderSettings();await renderToday();showToast(id?'已更新':'已创建');
+}
+
+async function editCat(id){var cats=await getCategories();var c=cats.find(function(x){return x.id===id;});if(c)showCatForm(c);}
+async function deleteCat(id){if(!confirm('确定删除？习惯不会被删除。'))return;await deleteCategory(id);await renderSettings();showToast('已删除');}
+
+async function exportData(){
+ var data={categories:await getCategories(),habits:await getHabits(),checkins:await promisify(tx('checkins').getAll()),exportDate:new Date().toISOString()};
+ try{data.reflections=await promisify(tx('reflections').getAll());}catch(e){data.reflections=[];}
+ try{data.quotes=await promisify(tx('quotes').getAll());}catch(e){data.quotes=[];}
+ var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+ var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='habit-backup-'+todayStr()+'.json';a.click();URL.revokeObjectURL(url);showToast('已导出');
+}
+
+async function importData(event){
+ var file=event.target.files[0];if(!file)return;
+ if(!confirm('导入将覆盖现有数据！'))return;
+ var text=await file.text();var data=JSON.parse(text);
+ var stores=['categories','habits','checkins','reflections','quotes'];
+ for(var i=0;i<stores.length;i++){
+  try{var store=tx(stores[i],'readwrite');await promisify(store.clear());if(data[stores[i]]){for(var j=0;j<data[stores[i]].length;j++)store.add(data[stores[i]][j]);}}catch(e){}
+ }
+ showToast('已导入');await renderSettings();await renderToday();
+}
+
+async function clearAllData(){
+ if(!confirm('确定清除所有数据？不可恢复！'))return;
+ var stores=['categories','habits','checkins','reflections','quotes'];
+ for(var i=0;i<stores.length;i++){try{await promisify(tx(stores[i],'readwrite').clear());}catch(e){}}
+ await initData();showToast('已重置');await renderSettings();await renderToday();
+}
+</script>
+</body>
+</html>
